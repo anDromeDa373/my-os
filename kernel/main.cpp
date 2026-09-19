@@ -1,27 +1,37 @@
-using uint8_t = unsigned char;
-using uint32_t = unsigned int;
-using uint64_t = unsigned long long;
+#include "pixel_writer.hpp"
+#include <stddef.h>
 
-struct FrameBufferConfig {
-    uint8_t* frame_buffer;
-    uint32_t pixels_per_scan_line;
-    uint32_t horizontal_resolution;
-    uint32_t vertical_resolution;
-    enum PixelFormat {
-        kPixelRGBResv8BitPerColor,
-        kPixelBGRResv8BitPerColor,
-    } pixel_format;
-};
+void* operator new(size_t size, void* buf) noexcept {
+    return buf;
+}
+
+extern "C" void __cxa_pure_virtual() {
+    while (1) __asm__("hlt");
+}
+
+const PixelColor kWhite{255, 255, 255};
+const PixelColor kRed{255, 0, 0};
+
+// ★ alignas でメモリのアドレス境界を 8バイトに整列させる
+alignas(RGBPixelWriter) char pixel_writer_buf[sizeof(RGBPixelWriter)];
+PixelWriter* writer;
 
 extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
+    if (frame_buffer_config.pixel_format == FrameBufferConfig::kPixelRGBResv8BitPerColor) {
+        writer = new (pixel_writer_buf) RGBPixelWriter{frame_buffer_config};
+    } else {
+        writer = new (pixel_writer_buf) BGRPixelWriter{frame_buffer_config};
+    }
+
+    // ★ y を外側、x を内側にすることで、メモリに順番に高速アクセスして画面全体を白塗りにする
     for (uint32_t y = 0; y < frame_buffer_config.vertical_resolution; ++y) {
         for (uint32_t x = 0; x < frame_buffer_config.horizontal_resolution; ++x) {
-            uint64_t pixel_index = y * frame_buffer_config.pixels_per_scan_line + x;
-            uint8_t* p = &frame_buffer_config.frame_buffer[pixel_index * 4];
-            p[0] = 255; // Red
-            p[1] = 255; // Green
-            p[2] = 255; // Blue
+            writer->Write(x, y, kWhite);
         }
     }
+
+    // 赤い四角形を描画
+    writer->FillRectangle(200, 200, 100, 100, kRed);
+
     while (1) __asm__("hlt");
 }

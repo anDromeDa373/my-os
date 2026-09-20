@@ -1,15 +1,19 @@
 CXX = clang++
 LD = ld.lld
 
+# -fPIC で位置独立コードを出力させ、再配置情報 (.rela.dyn) を生成させる
 CXXFLAGS = -target x86_64-elf -ffreestanding -mno-red-zone -fPIC -fno-rtti -fno-exceptions -std=c++17 -Wall -MMD -MP
 
 OBJS = main.o pixel_writer.o
 
+# kernel.ld を使わず、ブートローダー想定の標準レイアウトでリンク
 kernel.elf: $(OBJS)
-	$(LD) -s -shared -Bsymbolic -e KernelMain -o $@ $(OBJS)
+	$(LD) --entry KernelMain -shared -Bsymbolic -o $@ $(OBJS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o kernel.elf
+	rm -f *.o *.d kernel.elf
+
+-include $(OBJS:.o=.d)

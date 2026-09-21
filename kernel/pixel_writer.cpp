@@ -18,40 +18,40 @@ void PixelWriter::DrawLine(int x0, int y0, int x1, int y1, const PixelColor& col
     int dx = (x1 > x0) ? x1 - x0 : x0 - x1;
     int dy = (y1 > y0) ? y1 - y0 : y0 - y1;
 
-    int step_x = (dx > dy) ? dx : dy;
-    int step_y = (dx > dy) ? dy : dx;
-
     int sx = (x1 > x0) ? 1 : -1;
     int sy = (y1 > y0) ? 1 : -1;
 
-    int inc_x = 0;
-    int inc_y = 0;
-
-    if (step_x == 0 || step_y == 0) {
+    // 始点と終点が同じ点なら1ピクセル打って終了
+    if (dx == 0 && dy == 0) {
         Write(x0, y0, color);
         return;
     }
 
-    for (int i = 0; i <= step_x; ++i) {
-        Write(x0, y0, color);
-        x0 += sx;
-        inc_y += step_y;
-        if (inc_y >= step_x) {
-            inc_y -= step_x;
-            y0 += sy;
-        }
-    }
-
-    for (int i = 0; i <= step_y; ++i) {
-        Write(x0, y0, color);
-        y0 += sy;
-        inc_x += step_x;
-        if (inc_x >= step_y) {
-            inc_x -= step_y;
+    if (dx >= dy) {
+        // 横長（x軸メインで進む）パターン
+        int inc_y = 0;
+        for (int i = 0; i <= dx; ++i) {
+            Write(x0, y0, color);
             x0 += sx;
+            inc_y += dy;
+            if (inc_y >= dx) {
+                inc_y -= dx;
+                y0 += sy;
+            }
+        }
+    } else {
+        // 縦長（y軸メインで進む）パターン
+        int inc_x = 0;
+        for (int i = 0; i <= dy; ++i) {
+            Write(x0, y0, color);
+            y0 += sy;
+            inc_x += dx;
+            if (inc_x >= dy) {
+                inc_x -= dy;
+                x0 += sx;
+            }
         }
     }
-
 }
 
 // RGB形式の書き込み： [0]=R, [1]=G, [2]=B

@@ -111,15 +111,14 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     DrawDebugSquare(frame_buffer_config, 180, 255, 0, 0);       // 赤
     DrawDebugSquare(frame_buffer_config, 210, 255, 255, 0);     // 黄
 
-    // ★ ここを修正！
-    // KernelMain の実際の実行アドレスから、ELF内でのオフセットを引いて本当の base_addr を算出する
-    // (KernelMain が 0x101bf0 にあり、オフセットが 0x1bf0 なら base_addr は 0x100000 になる)
-    uint64_t kernel_main_addr = reinterpret_cast<uint64_t>(KernelMain);
-    // nm コマンドで確認した KernelMain のオフセット値 (0x1bf0 付近)
-    // 確実にするため _DYNAMIC の相対位置からベースを引く方法を使います
-    uint64_t dynamic_addr = reinterpret_cast<uint64_t>(_DYNAMIC);
-    // readelf で確認した _DYNAMIC のオフセットは 0x1100
-    uint64_t base_addr = dynamic_addr - 0x1d10;
+    uint64_t base_addr = reinterpret_cast<uint64_t>(_DYNAMIC) & ~0xfffULL;
+    while (base_addr > 0) {
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(base_addr);
+        if (p[0] == 0x7f && p[1] == 'E' && p[2] == 'L' && p[3] == 'F') {
+            break; // ELF ヘッダの先頭アドレスを自動発見！
+        }
+        base_addr -= 0x1000;
+    }
 
     // 計算した本当の base_addr で再配置を実行
     PerformSelfRelocation(base_addr, frame_buffer_config);
@@ -144,8 +143,11 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
 
     writer->FillRectangle(200, 200, 100, 100, kRed);
 
-    writer->DrawLine(0, 0, 100, 100, kRed);
-    writer->DrawLine(100, 0, 0, 500, kRed);
+    writer->DrawLine(0, 0, 200, 100, kRed);
+
+    writer->DrawLine(100, 100, 200, 300, kRed);
+
+    writer->DrawLine(600, 600, 400, 500, kRed);
 
     while (1) __asm__("hlt");
 }

@@ -103,6 +103,7 @@ void PerformSelfRelocation(uint64_t base_addr, const FrameBufferConfig& config) 
 
 const PixelColor kWhite{255, 255, 255};
 const PixelColor kRed{255, 0, 0};
+const PixelColor kGreen{0, 255, 0};
 
 alignas(RGBPixelWriter) char pixel_writer_buf[sizeof(RGBPixelWriter)];
 PixelWriter* writer;
@@ -148,6 +149,16 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     writer->DrawLine(100, 100, 200, 300, kRed);
 
     writer->DrawLine(600, 600, 400, 500, kRed);
+
+    writer->WriteAscii(100, 100, 'Z', kRed);
+
+    writer->WriteAscii(100, 200, 1, {255, 255, 255});
+
+    writer->WriteAscii(200, 100, 0xB1, {0, 0, 0});
+
+    writer->FillRectangle(200, 500, 8, 8, kRed);
+
+
 
     while (1) __asm__("hlt");
 }

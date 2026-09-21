@@ -1,4 +1,5 @@
 #include "pixel_writer.hpp"
+#include "font.hpp"
 
 // (x, y) 座標のメモリ位置を計算（1ピクセル=4バイト）
 uint8_t* PixelWriter::PixelAt(int x, int y) {
@@ -49,6 +50,24 @@ void PixelWriter::DrawLine(int x0, int y0, int x1, int y1, const PixelColor& col
             if (inc_x >= dy) {
                 inc_x -= dy;
                 x0 += sx;
+            }
+        }
+    }
+}
+
+void PixelWriter::WriteAscii(int x, int y, char c, const PixelColor& color) {
+
+    // 文字コードに対応するフォントデータの先頭アドレスを計算
+    const uint8_t* font_data = GetFont(c);
+    if (!font_data) {
+        return;
+    }
+
+    for (int dy = 0; dy < 16; ++dy) {
+        uint8_t row = font_data[dy];
+        for (int dx = 0; dx < 8; ++dx) {
+            if ((row >> (7 - dx)) & 1) {
+                Write(x + dx, y + dy, color);
             }
         }
     }

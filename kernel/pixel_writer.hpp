@@ -34,6 +34,8 @@ public:
 
     void WriteAscii(int x, int y, char c, const PixelColor& color);
 
+    void WriteString(int x, int y, const char* str, const PixelColor& color);
+
     
 
 protected:

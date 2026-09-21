@@ -158,6 +158,8 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
 
     writer->FillRectangle(200, 500, 8, 8, kRed);
 
+    writer->WriteString(300, 300, "Hello, World!", {0, 0, 0});
+
 
 
     while (1) __asm__("hlt");

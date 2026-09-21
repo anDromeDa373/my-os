@@ -73,6 +73,13 @@ void PixelWriter::WriteAscii(int x, int y, char c, const PixelColor& color) {
     }
 }
 
+void PixelWriter::WriteString(int x, int y, const char* str, const PixelColor& color) {
+    while (*str) {
+        WriteAscii(x, y, *str++, color);
+        x += 8; // 1文字分右にずらす
+    }
+}
+
 // RGB形式の書き込み： [0]=R, [1]=G, [2]=B
 void RGBPixelWriter::Write(int x, int y, const PixelColor& c) {
     auto p = PixelAt(x, y);

@@ -30,6 +30,8 @@ public:
 
     void FillRectangle(int x, int y, int w, int h, const PixelColor& c);
 
+    void DrawLine(int x0, int y0, int x1, int y1, const PixelColor& color);
+
 protected:
     // (x, y) 座標から VRAM のメモリ先頭アドレスを計算する補助関数
     uint8_t* PixelAt(int x, int y);

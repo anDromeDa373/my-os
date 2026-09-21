@@ -119,7 +119,7 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     // 確実にするため _DYNAMIC の相対位置からベースを引く方法を使います
     uint64_t dynamic_addr = reinterpret_cast<uint64_t>(_DYNAMIC);
     // readelf で確認した _DYNAMIC のオフセットは 0x1100
-    uint64_t base_addr = dynamic_addr - 0x31f0;
+    uint64_t base_addr = dynamic_addr - 0x1d10;
 
     // 計算した本当の base_addr で再配置を実行
     PerformSelfRelocation(base_addr, frame_buffer_config);
@@ -143,6 +143,9 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     }
 
     writer->FillRectangle(200, 200, 100, 100, kRed);
+
+    writer->DrawLine(0, 0, 100, 100, kRed);
+    writer->DrawLine(100, 0, 0, 500, kRed);
 
     while (1) __asm__("hlt");
 }

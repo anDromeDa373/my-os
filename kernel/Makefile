@@ -13,6 +13,9 @@ kernel.elf: $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+hankaku.o: hankaku.bin
+	objcopy -I binary -O elf64-x86-64 -B i386 $< $@
+
 clean:
 	rm -f *.o *.d kernel.elf
 

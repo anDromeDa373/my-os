@@ -1,4 +1,5 @@
 #include "pixel_writer.hpp"
+#include "console.hpp"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -109,9 +110,7 @@ alignas(RGBPixelWriter) char pixel_writer_buf[sizeof(RGBPixelWriter)];
 PixelWriter* writer;
 
 extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
-    DrawDebugSquare(frame_buffer_config, 180, 255, 0, 0);       // 赤
-    DrawDebugSquare(frame_buffer_config, 210, 255, 255, 0);     // 黄
-
+    
     uint64_t base_addr = reinterpret_cast<uint64_t>(_DYNAMIC) & ~0xfffULL;
     while (base_addr > 0) {
         const uint8_t* p = reinterpret_cast<const uint8_t*>(base_addr);
@@ -124,17 +123,11 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     // 計算した本当の base_addr で再配置を実行
     PerformSelfRelocation(base_addr, frame_buffer_config);
 
-    DrawDebugSquare(frame_buffer_config, 240, 0, 255, 0);       // 緑
-
     if (frame_buffer_config.pixel_format == FrameBufferConfig::kPixelRGBResv8BitPerColor) {
         writer = new (pixel_writer_buf) RGBPixelWriter{frame_buffer_config};
     } else {
         writer = new (pixel_writer_buf) BGRPixelWriter{frame_buffer_config};
     }
-    DrawDebugSquare(frame_buffer_config, 270, 0, 255, 255);   // 水色
-
-    writer->Write(0, 0, kWhite);
-    DrawDebugSquare(frame_buffer_config, 300, 0, 0, 0);     // 青
 
     for (uint32_t y = 0; y < frame_buffer_config.vertical_resolution; ++y) {
         for (uint32_t x = 0; x < frame_buffer_config.horizontal_resolution; ++x) {
@@ -160,6 +153,17 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
 
     writer->WriteString(300, 300, "Hello, World!", {0, 0, 0});
 
+    Console console(writer, 100, 100, 700, 400, {255, 255, 255}, {0, 0, 0});
+
+    console.WriteString("Hello, World!aaaaaaaaaaaaaaaaaaaaaaffffffbsgrwiugfusierbguiesbgfiuesrbgisuebgruisebgiuresbruiesbguiesbgriejsbfsdbjisbgriesgbiuresbfsubfsebhfruieshbriuelsghriusehbgiuesrbgisdjfbvsdkjbsierhugiselrughresilnfsiehnfhuiesrhiusenvkjdfbijsebriguhserihfnveisnbviureshifnesjrilbgiruelshgfuisenfiserbvgrusiehgserijnfiselrfhueshrgbiserndvfjkghseiuhgrueisnfivjdknvnbishrgiosteuhgnvfjdknbisoguhgr iseohu gisenrvuh ieurhneicurnnhmrs we selc gilesrspd:orq[2-3045m-2q0435um34w896u    @-2kmor3qjcapuesr ghq[]]");
+
+    console.WriteString("\nNew Line Test\n");
+
+    console.WriteString("This is a test of the console output. It should handle line wrapping and scrolling correctly. Let's add more text to see how it behaves when we exceed the number of rows available in the console window. The quick brown fox jumps over the lazy dog. 1234567890!@#$%^&*()_+-=[]{}|;':\",./<>?");
+
+    console.WriteString("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEnd of Test\n");
+
+    console.WriteString("This is a test of the console output. It should handle line wrapping and scrolling correctly. Let's add more text to see how it behaves when we exceed the number of rows available in the console window. The quick brown fox jumps over the lazy dog. 1234567890!@#$%^&*()_+-=[]{}|;':\",./<>?");
 
 
     while (1) __asm__("hlt");

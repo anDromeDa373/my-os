@@ -10,6 +10,10 @@ class Console {
         
         void WriteString(const char* str);
 
+        void PutChar(char c);
+
+        void Newline();
+
     private:
         PixelWriter* writer_;
         int x_, y_, width_, height_;

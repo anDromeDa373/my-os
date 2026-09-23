@@ -3,8 +3,8 @@
 
 class Console {
     public:
-        static const int kRows = 25;
         static const int kCols = 80;
+        static const int kRows = 25;
 
         Console(PixelWriter* writer, int x, int y, int width, int height, const PixelColor& fg_color, const PixelColor& bg_color);
         

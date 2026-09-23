@@ -30,6 +30,15 @@ void Console::WriteString(const char* str) {
                     buffer_[kRows - 1][col] = '\0';
                 }
                 cursor_row_ = kRows - 1;
+
+                writer_->FillRectangle(x_, y_, width_, height_, bg_color_);
+
+                for (int row = 0; row < kRows; ++row) {
+                    for (int col = 0; col < kCols; ++col) {
+                        char ch = buffer_[row][col];
+                        writer_->WriteAscii(x_ + col * 8, y_ + row * 16, ch, fg_color_);
+                    }
+                }
             }
         } else {
             if (cursor_col_ < kCols) {
@@ -52,6 +61,15 @@ void Console::WriteString(const char* str) {
                         buffer_[kRows - 1][col] = '\0';
                     }
                     cursor_row_ = kRows - 1;
+
+                    writer_->FillRectangle(x_, y_, width_, height_, bg_color_);
+
+                    for (int row = 0; row < kRows; ++row) {
+                        for (int col = 0; col < kCols; ++col) {
+                            char ch = buffer_[row][col];
+                            writer_->WriteAscii(x_ + col * 8, y_ + row * 16, ch, fg_color_);
+                        }
+                    }
                 }
                 // Write the character on the new line
                 buffer_[cursor_row_][cursor_col_] = c;
